@@ -35,7 +35,8 @@ if st.session_state.current_question is None:
     next_question()
 
 # --- UIの構築 ---
-st.title("📝 一問一答クイズ")
+#st.title("📝 一問一答クイズ")
+st.markdown("### 📝 一問一答クイズ")
 st.write("資格試験の勉強用アプリ")
 st.divider()
 
