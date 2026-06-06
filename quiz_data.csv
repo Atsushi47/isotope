@@ -1,4 +1,5 @@
 question,answer
-Pythonで文字数を出力する関数は？,len()
-CSVファイルを扱うためによく使われるPythonのライブラリは？,pandas
-Streamlitを実行するコマンドは？,streamlit run
+光子の質量はゼロである。,〇
+光子の運動量はゼロである,×
+光子のエネルギーはゼロである。,×
+光子の電荷はゼロである。,〇
