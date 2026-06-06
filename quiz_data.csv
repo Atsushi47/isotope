@@ -1,0 +1,4 @@
+question,answer
+Pythonで文字数を出力する関数は？,len()
+CSVファイルを扱うためによく使われるPythonのライブラリは？,pandas
+Streamlitを実行するコマンドは？,streamlit run
