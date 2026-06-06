@@ -37,7 +37,7 @@ if st.session_state.current_question is None:
 # --- UIの構築 ---
 #st.title("📝 一問一答クイズ")
 st.markdown("### 📝 一問一答")
-st.write("第２種放射線取扱主任者資格試験勉強用アプリ")
+st.write("第２種放射線取扱主任者資格試験勉強アプリ")
 st.divider()
 
 # 問題文の表示
