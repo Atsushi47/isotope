@@ -8,7 +8,7 @@ st.set_page_config(page_title="一問一答アプリ", page_icon="📝", layout=
 # CSVデータの読み込み（キャッシュして高速化）
 @st.cache_data
 def load_data():
-    return pd.read_csv("quiz_data.csv")
+    return pd.read_csv("quiz_data.csv",sep="\t")
 
 try:
     df = load_data()
@@ -35,14 +35,21 @@ if st.session_state.current_question is None:
     next_question()
 
 # --- UIの構築 ---
-#st.title("📝 一問一答クイズ")
 st.markdown("### 📝 一問一答")
 st.write("第２種放射線取扱主任者資格試験勉強アプリ")
 st.divider()
 
 # 問題文の表示
 if st.session_state.current_question is not None:
+    # 1. まず【問題】の見出しを表示
     st.subheader("【問題】")
+    
+    # --- 【ここを修正：【問題】のすぐ下に移動しました】 ---
+    # 2. 次に、CSVに「category」という列があれば表示する
+    if "category" in st.session_state.current_question and pd.notna(st.session_state.current_question["category"]):
+        st.caption(f"📂 科目：{st.session_state.current_question['category']}")
+    
+    # 3. その下に問題文を表示
     st.info(st.session_state.current_question["question"])
     
     # 「答えを見る」ボタン
