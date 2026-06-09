@@ -35,7 +35,9 @@ if st.session_state.current_question is None:
 # --- UIの構築 ---
 
 # 【改善点①】タイトル部分をスッキリ1行に統合
-st.markdown("### 📝 一問一答 <span style='font-size: 14px; color: gray; margin-left: 10px;'>第2種放射線取扱主任者</span>", unsafe_allow_html=True)
+# --- UIの構築 ---
+st.markdown("### 📝 一問一答")
+st.markdown("<div style='font-size: 13px; color: gray; margin-top: -10px; margin-bottom: 15px;'>第2種放射線取扱主任者資格試験勉強アプリ</div>", unsafe_allow_html=True)
 
 if st.session_state.current_question is not None:
     
