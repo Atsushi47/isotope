@@ -2,21 +2,21 @@ import streamlit as st
 import pandas as pd
 import random
 
-# ページの設定（スマホ向けにタイトルの見栄えなどを調整）
-st.set_page_config(page_title="一問一答アプリ", page_icon="📝", layout="centered")
+# ページの設定
+st.set_page_config(page_title="一問一答", page_icon="📝", layout="centered")
 
-# CSVデータの読み込み（キャッシュして高速化）
+# CSVデータの読み込み（タブ区切り）
 @st.cache_data
 def load_data():
-    return pd.read_csv("quiz_data.csv",sep="\t")
+    return pd.read_csv("quiz_data.csv", sep="\t")
 
 try:
     df = load_data()
 except FileNotFoundError:
-    st.error("quiz_data.csv が見つかりません。同じフォルダに配置してください。")
+    st.error("quiz_data.csv が見つかりません。")
     st.stop()
 
-# セッション状態（アプリの状態保持）の初期化
+# セッション状態の初期化
 if "current_question" not in st.session_state:
     st.session_state.current_question = None
 if "show_answer" not in st.session_state:
@@ -25,31 +25,28 @@ if "show_answer" not in st.session_state:
 # 「次の問題」を選ぶ関数
 def next_question():
     if not df.empty:
-        # ランダムに1行選択
         random_row = df.sample(n=1).iloc[0]
         st.session_state.current_question = random_row
         st.session_state.show_answer = False
 
-# 初回起動時に最初の問題を設定
 if st.session_state.current_question is None:
     next_question()
 
 # --- UIの構築 ---
-st.markdown("### 📝 一問一答")
-st.write("第２種放射線取扱主任者資格試験勉強アプリ")
-st.divider()
 
-# 問題文の表示
+# 【改善点①】タイトル部分をスッキリ1行に統合
+st.markdown("### 📝 一問一答 <span style='font-size: 14px; color: gray; margin-left: 10px;'>第2種放射線取扱主任者</span>", unsafe_allow_html=True)
+
 if st.session_state.current_question is not None:
-    # 1. まず【問題】の見出しを表示
-    st.subheader("【問題】")
     
-    # --- 【ここを修正：【問題】のすぐ下に移動しました】 ---
-    # 2. 次に、CSVに「category」という列があれば表示する
+    # 【改善点②】「【問題】」と「カテゴリー」を同じ行に合体させて縦幅を大幅に節約！
+    category_text = ""
     if "category" in st.session_state.current_question and pd.notna(st.session_state.current_question["category"]):
-        st.caption(f"📂 科目：{st.session_state.current_question['category']}")
+        category_text = f" <span style='font-size: 14px; color: #FFA500; margin-left: 15px;'>📂 {st.session_state.current_question['category']}</span>"
     
-    # 3. その下に問題文を表示
+    st.markdown(f"**【問題】**{category_text}", unsafe_allow_html=True)
+    
+    # 問題文
     st.info(st.session_state.current_question["question"])
     
     # 「答えを見る」ボタン
@@ -58,11 +55,8 @@ if st.session_state.current_question is not None:
 
     # 答えの表示
     if st.session_state.show_answer:
-        st.subheader("【答え】")
+        st.markdown("**【答え】**")
         st.success(st.session_state.current_question["answer"])
 
-    st.divider()
-
-# 「次の問題へ」ボタン（常に下部に配置）
-if st.button("➡️ 次の問題へ", on_click=next_question, use_container_width=True):
-    pass
+# 【改善点③】無駄な区切り線（st.divider）を無くして直結
+st.button("➡️ 次の問題へ", on_click=next_question, use_container_width=True)
