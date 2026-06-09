@@ -34,14 +34,13 @@ if st.session_state.current_question is None:
 
 # --- UIの構築 ---
 
-# 【改善点①】タイトル部分をスッキリ1行に統合
-# --- UIの構築 ---
+# タイトル部分
 st.markdown("### 📝 一問一答")
 st.markdown("<div style='font-size: 13px; color: gray; margin-top: -10px; margin-bottom: 15px;'>第2種放射線取扱主任者資格試験勉強アプリ</div>", unsafe_allow_html=True)
 
 if st.session_state.current_question is not None:
     
-    # 【改善点②】「【問題】」と「カテゴリー」を同じ行に合体させて縦幅を大幅に節約！
+    # 「【問題】」と「カテゴリー」の統合表示
     category_text = ""
     if "category" in st.session_state.current_question and pd.notna(st.session_state.current_question["category"]):
         category_text = f" <span style='font-size: 14px; color: #FFA500; margin-left: 15px;'>📂 {st.session_state.current_question['category']}</span>"
@@ -55,10 +54,15 @@ if st.session_state.current_question is not None:
     if st.button("👀 答えを見る", use_container_width=True):
         st.session_state.show_answer = True
 
-    # 答えの表示
+    # 答えと解説の表示
     if st.session_state.show_answer:
         st.markdown("**【答え】**")
         st.success(st.session_state.current_question["answer"])
+        
+        # 【新機能】解説の表示（CSVに explanation 列がある場合）
+        if "explanation" in st.session_state.current_question and pd.notna(st.session_state.current_question["explanation"]):
+            st.markdown("**【解説】**")
+            st.info(st.session_state.current_question["explanation"])
 
-# 【改善点③】無駄な区切り線（st.divider）を無くして直結
+# 次の問題へボタン
 st.button("➡️ 次の問題へ", on_click=next_question, use_container_width=True)
