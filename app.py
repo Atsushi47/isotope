@@ -302,7 +302,7 @@ st.markdown(
     f"""
     <div style="
         text-align:center;
-        font-size:11px;
+        font-size:15px;
         color:gray;
         margin-bottom:8px;
         white-space:nowrap;
