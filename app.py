@@ -302,14 +302,13 @@ st.markdown(
     f"""
     <div style="
         text-align:center;
-        font-size:15px;
+        font-size:14px;
         color:gray;
         margin-bottom:8px;
         white-space:nowrap;
         overflow-x:auto;
     ">
-        No.{st.session_state.current_index}/{len(df)}
-        ｜解答:{total_answered}
+        解答:{total_answered}
         ｜😊:{confident_correct}
         ｜🙂:{weak_correct}
         ｜😓:{weak_wrong}
