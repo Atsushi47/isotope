@@ -296,43 +296,28 @@ st.radio(
 )
 
 # -----------------------------
-# 統計表示（横並び）
+# 統計表示（スマホ向け）
 # -----------------------------
-c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
-
-c1.metric(
-    "No",
-    f"{st.session_state.current_index}/{len(df)}"
-)
-
-c2.metric(
-    "解答",
-    total_answered
-)
-
-c3.metric(
-    "😊",
-    confident_correct
-)
-
-c4.metric(
-    "🙂",
-    weak_correct
-)
-
-c5.metric(
-    "😓",
-    weak_wrong
-)
-
-c6.metric(
-    "😭",
-    strong_wrong
-)
-
-c7.metric(
-    "率",
-    f"{accuracy:.0f}%"
+st.markdown(
+    f"""
+    <div style="
+        text-align:center;
+        font-size:11px;
+        color:gray;
+        margin-bottom:8px;
+        white-space:nowrap;
+        overflow-x:auto;
+    ">
+        No.{st.session_state.current_index}/{len(df)}
+        ｜解答:{total_answered}
+        ｜😊:{confident_correct}
+        ｜🙂:{weak_correct}
+        ｜😓:{weak_wrong}
+        ｜😭:{strong_wrong}
+        ｜{accuracy:.0f}%
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 st.divider()
