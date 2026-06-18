@@ -416,6 +416,8 @@ if st.session_state.current_question is not None:
         # ---------------------
         # 4段階評価
         # ---------------------
+
+        # 1行目
         col1, col2 = st.columns(2)
 
         with col1:
@@ -426,12 +428,6 @@ if st.session_state.current_question is not None:
                 use_container_width=True
             )
 
-            st.button(
-                "😓 あやふや不正解",
-                on_click=mark_weak_wrong,
-                use_container_width=True
-            )
-
         with col2:
 
             st.button(
@@ -439,6 +435,19 @@ if st.session_state.current_question is not None:
                 on_click=mark_weak_correct,
                 use_container_width=True
             )
+
+        # 2行目
+        col3, col4 = st.columns(2)
+
+        with col3:
+
+            st.button(
+                "😓 あやふや不正解",
+                on_click=mark_weak_wrong,
+                use_container_width=True
+            )
+
+        with col4:
 
             st.button(
                 "😭 全く分からない",
