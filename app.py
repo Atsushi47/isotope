@@ -36,25 +36,18 @@ def load_history():
 
     columns = [
         "question_id",
-        "confident_correct",
-        "weak_correct",
-        "weak_wrong",
-        "strong_wrong"
+        "status"
     ]
 
     if os.path.exists(HISTORY_FILE):
 
         history = pd.read_csv(HISTORY_FILE)
 
-        # 古い形式なら作り直し
         if list(history.columns) != columns:
 
             history = pd.DataFrame({
                 "question_id": range(len(df)),
-                "confident_correct": 0,
-                "weak_correct": 0,
-                "weak_wrong": 0,
-                "strong_wrong": 0
+                "status": 0
             })
 
             history.to_csv(
@@ -62,7 +55,6 @@ def load_history():
                 index=False
             )
 
-        # 問題追加対応
         if len(history) < len(df):
 
             add_df = pd.DataFrame({
@@ -70,10 +62,7 @@ def load_history():
                     len(history),
                     len(df)
                 ),
-                "confident_correct": 0,
-                "weak_correct": 0,
-                "weak_wrong": 0,
-                "strong_wrong": 0
+                "status": 0
             })
 
             history = pd.concat(
@@ -90,10 +79,7 @@ def load_history():
 
     history = pd.DataFrame({
         "question_id": range(len(df)),
-        "confident_correct": 0,
-        "weak_correct": 0,
-        "weak_wrong": 0,
-        "strong_wrong": 0
+        "status": 0
     })
 
     history.to_csv(
@@ -164,18 +150,7 @@ def next_question():
     # 重点モード
     else:
 
-        weights = [
-            calculate_weight(
-                history_df.iloc[i]
-            )
-            for i in range(len(df))
-        ]
-
-        idx = random.choices(
-            range(len(df)),
-            weights=weights,
-            k=1
-        )[0]
+        idx = select_weighted_question()
 
     st.session_state.current_question = df.iloc[idx]
     st.session_state.current_index = idx + 1
@@ -184,7 +159,7 @@ def next_question():
 # -----------------------------
 # 評価記録
 # -----------------------------
-def register_result(column_name):
+def register_result(status):
 
     idx = (
         st.session_state.current_index - 1
@@ -192,8 +167,8 @@ def register_result(column_name):
 
     history_df.loc[
         history_df["question_id"] == idx,
-        column_name
-    ] += 1
+        "status"
+    ] = status
 
     save_history()
 
@@ -203,25 +178,67 @@ def register_result(column_name):
 # 評価ボタン用
 # -----------------------------
 def mark_confident_correct():
-    register_result(
-        "confident_correct"
-    )
+    register_result(1)
 
 def mark_weak_correct():
-    register_result(
-        "weak_correct"
-    )
+    register_result(2)
 
 def mark_weak_wrong():
-    register_result(
-        "weak_wrong"
-    )
+    register_result(3)
 
 def mark_strong_wrong():
-    register_result(
-        "strong_wrong"
-    )
+    register_result(4)
 
+def select_weighted_question():
+
+    groups = {
+        0: [],
+        4: [],
+        3: [],
+        2: [],
+        1: []
+    }
+
+    for i in range(len(df)):
+
+        status = int(
+            history_df.iloc[i]["status"]
+        )
+
+        groups[status].append(i)
+
+    weights = {
+        0: 50,  # 未出題
+        4: 30,  # 😭
+        3: 15,  # 😓
+        2: 4,   # 🙂
+        1: 1    # 😊
+    }
+
+    available_groups = []
+    available_weights = []
+
+    for status, weight in weights.items():
+
+        if groups[status]:
+
+            available_groups.append(
+                status
+            )
+
+            available_weights.append(
+                weight
+            )
+
+    selected_status = random.choices(
+        available_groups,
+        weights=available_weights,
+        k=1
+    )[0]
+
+    return random.choice(
+        groups[selected_status]
+    )
 # -----------------------------
 # 初回出題
 # -----------------------------
@@ -231,34 +248,37 @@ if st.session_state.current_question is None:
 # -----------------------------
 # 統計集計
 # -----------------------------
-confident_correct = int(
-    history_df["confident_correct"].sum()
+unseen = (
+    history_df["status"] == 0
+).sum()
+
+confident_correct = (
+    history_df["status"] == 1
+).sum()
+
+weak_correct = (
+    history_df["status"] == 2
+).sum()
+
+weak_wrong = (
+    history_df["status"] == 3
+).sum()
+
+strong_wrong = (
+    history_df["status"] == 4
+).sum()
+
+total_questions = len(history_df)
+
+answered_questions = (
+    total_questions - unseen
 )
 
-weak_correct = int(
-    history_df["weak_correct"].sum()
-)
-
-weak_wrong = int(
-    history_df["weak_wrong"].sum()
-)
-
-strong_wrong = int(
-    history_df["strong_wrong"].sum()
-)
-
-total_answered = (
-    confident_correct
-    + weak_correct
-    + weak_wrong
-    + strong_wrong
-)
-
-if total_answered > 0:
+if answered_questions > 0:
 
     accuracy = (
         (confident_correct + weak_correct)
-        / total_answered
+        / answered_questions
         * 100
     )
 
@@ -308,7 +328,7 @@ st.markdown(
         white-space:nowrap;
         overflow-x:auto;
     ">
-        解答:{total_answered}
+        未出題:{unseen}
         ｜😊:{confident_correct}
         ｜🙂:{weak_correct}
         ｜😓:{weak_wrong}
