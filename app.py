@@ -114,6 +114,8 @@ if "show_answer" not in st.session_state:
 if "quiz_mode" not in st.session_state:
     st.session_state.quiz_mode = "通常"
 
+if "recent_questions" not in st.session_state:
+    st.session_state.recent_questions = []
 # -----------------------------
 # 重点度計算
 # -----------------------------
@@ -200,45 +202,56 @@ def select_weighted_question():
     }
 
     for i in range(len(df)):
-
         status = int(
             history_df.iloc[i]["status"]
         )
-
         groups[status].append(i)
 
-    weights = {
-        0: 50,  # 未出題
-        4: 30,  # 😭
-        3: 15,  # 😓
-        2: 4,   # 🙂
-        1: 1    # 😊
-    }
+    # 優先順位
+    if groups[0]:
+        candidate_list = groups[0]
 
-    available_groups = []
-    available_weights = []
+    elif groups[4]:
+        candidate_list = groups[4]
 
-    for status, weight in weights.items():
+    elif groups[3]:
+        candidate_list = groups[3]
 
-        if groups[status]:
+    elif groups[2]:
+        candidate_list = groups[2]
 
-            available_groups.append(
-                status
-            )
+    else:
+        candidate_list = groups[1]
 
-            available_weights.append(
-                weight
-            )
-
-    selected_status = random.choices(
-        available_groups,
-        weights=available_weights,
-        k=1
-    )[0]
-
-    return random.choice(
-        groups[selected_status]
+    # 直前出題を除外
+    recent = st.session_state.get(
+        "recent_questions",
+        []
     )
+
+    filtered = [
+        q for q in candidate_list
+        if q not in recent
+    ]
+
+    if filtered:
+        candidate_list = filtered
+
+    selected = random.choice(
+        candidate_list
+    )
+
+    # 履歴保存（直近10問）
+    recent.append(selected)
+
+    if len(recent) > 10:
+        recent.pop(0)
+
+    st.session_state[
+        "recent_questions"
+    ] = recent
+
+    return selected
 # -----------------------------
 # 初回出題
 # -----------------------------
